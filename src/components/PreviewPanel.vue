@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import type { DocxEditorHandle } from '@eigenpal/docx-editor-vue'
 
 const props = defineProps<{
   /** docx | xlsx | pptx | ooxml */
@@ -11,6 +12,7 @@ const props = defineProps<{
 const container = ref<HTMLDivElement | null>(null)
 const status = ref('')
 let renderToken = 0
+let docxHandle: DocxEditorHandle | null = null
 let pptxPreviewer: {
   preview: (file: ArrayBuffer) => Promise<unknown>
   destroy: () => void
@@ -27,6 +29,8 @@ async function render() {
   const el = container.value
   if (!el) return
   const token = ++renderToken
+  docxHandle?.destroy()
+  docxHandle = null
   pptxPreviewer?.destroy()
   pptxPreviewer = null
   el.innerHTML = ''
@@ -34,16 +38,19 @@ async function render() {
   try {
     const buffer = base64ToArrayBuffer(props.base64)
     if (props.kind === 'docx') {
-      const { renderAsync } = await import('docx-preview')
-      await renderAsync(buffer, el, el, {
+      const { renderAsync } = await import('@eigenpal/docx-editor-vue')
+      await import('@eigenpal/docx-editor-vue/styles.css')
+      docxHandle = await renderAsync(buffer, el, {
+        mode: 'viewing',
+        readOnly: true,
+        showToolbar: false,
+        showMenuBar: false,
+        showRuler: false,
+        showOutline: false,
+        showOutlineButton: false,
+        showZoomControl: false,
+        colorMode: 'dark',
         className: 'ooxml-docx',
-        inWrapper: true,
-        breakPages: true,
-        ignoreWidth: false,
-        ignoreHeight: false,
-        ignoreFonts: false,
-        renderHeaders: true,
-        renderFooters: true,
       })
     } else if (props.kind === 'xlsx') {
       const XLSX = await import('xlsx')
@@ -83,6 +90,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  docxHandle?.destroy()
+  docxHandle = null
   pptxPreviewer?.destroy()
   pptxPreviewer = null
 })
@@ -150,17 +159,8 @@ onBeforeUnmount(() => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* docx 页面容器：外层 wrapper 透明（其默认是灰色底 + 30px 内边距），
-   仅保留单个白色页面卡片（docx-preview 的类名为 {className}-wrapper） */
-.preview-body :deep(.docx-wrapper),
-.preview-body :deep(.ooxml-docx-wrapper) {
-  background: transparent !important;
-  padding: 0 !important;
-  align-items: center;
-}
-
-.preview-body :deep(.docx-wrapper section),
-.preview-body :deep(.ooxml-docx-wrapper section) {
-  margin-bottom: 14px;
+/* docx 预览（docx-editor 只读模式，内部自带分页滚动） */
+.preview-body :deep(.ooxml-docx) {
+  height: 100%;
 }
 </style>
