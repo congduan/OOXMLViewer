@@ -339,6 +339,14 @@ fn read_image(file_path: String, entry_path: String) -> Result<String, String> {
     Ok(base64::engine::general_purpose::STANDARD.encode(&data))
 }
 
+/// 读取整个 OOXML 文件，返回 base64 编码内容（前端整文件预览渲染用）。
+#[tauri::command]
+fn read_whole_file(file_path: String) -> Result<String, String> {
+    let bytes = fs::read(&file_path).map_err(|e| format!("Failed to read file: {e}"))?;
+    use base64::Engine as _;
+    Ok(base64::engine::general_purpose::STANDARD.encode(&bytes))
+}
+
 /// 将 io 错误转为友好提示（macOS TCC 会拒绝未签名进程访问“桌面/文稿/下载”等受保护目录）
 fn io_err(action: &str, e: &std::io::Error) -> String {
     if e.kind() == std::io::ErrorKind::PermissionDenied {
@@ -615,6 +623,7 @@ pub fn run() {
             open_ooxml,
             read_entry,
             read_image,
+            read_whole_file,
             save_changes,
             extract_entry,
             list_backups,
@@ -860,6 +869,24 @@ mod tests {
         // 非图片条目被拒绝
         let err = read_image(fp.clone(), "word/document.xml".into()).unwrap_err();
         assert!(err.contains("not supported for preview"));
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn test_read_whole_file() {
+        let dir = std::env::temp_dir().join("ooxml_viewer_test_whole");
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("sample.docx");
+        let expected = make_sample_zip();
+        std::fs::write(&path, &expected).unwrap();
+
+        let b64 = read_whole_file(path.to_str().unwrap().to_string()).unwrap();
+        use base64::Engine as _;
+        let decoded = base64::engine::general_purpose::STANDARD
+            .decode(&b64)
+            .unwrap();
+        assert_eq!(decoded, expected);
 
         std::fs::remove_dir_all(&dir).unwrap();
     }

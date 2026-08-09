@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4fa3ff"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="doc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eaf2ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 圆角渐变底 -->
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bg)"/>
+
+  <!-- 高光 -->
+  <rect x="64" y="64" width="896" height="420" rx="200" fill="#ffffff" opacity="0.10"/>
+
+  <!-- 文档纸张（带折角） -->
+  <path
+    d="M290 232 h332 l140 140 v440 a28 28 0 0 1 -28 28 H290 a28 28 0 0 1 -28 -28 V260 a28 28 0 0 1 28 -28 z"
+    fill="url(#doc)"
+  />
+  <path d="M622 232 v130 a14 14 0 0 0 14 14 h126 z" fill="#c9d9f5"/>
+  <path d="M622 232 l140 140 h-126 a14 14 0 0 1 -14 -14 z" fill="#a9c2ec"/>
+
+  <!-- 内容行：类 XML 行 -->
+  <rect x="330" y="470" width="240" height="34" rx="17" fill="#4fa3ff" opacity="0.85"/>
+  <rect x="330" y="540" width="360" height="28" rx="14" fill="#8fb9f5"/>
+  <rect x="330" y="604" width="310" height="28" rx="14" fill="#8fb9f5"/>
+  <rect x="330" y="668" width="270" height="28" rx="14" fill="#c9d9f5"/>
+  <rect x="330" y="732" width="330" height="28" rx="14" fill="#c9d9f5"/>
+</svg>

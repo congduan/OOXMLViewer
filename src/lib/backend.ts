@@ -19,6 +19,11 @@ export function readImage(filePath: string, entryPath: string): Promise<string> 
   return invoke<string>('read_image', { filePath, entryPath })
 }
 
+/** 读取整个 OOXML 文件，返回 base64 编码内容（用于整文件预览渲染） */
+export function readWholeFile(filePath: string): Promise<string> {
+  return invoke<string>('read_whole_file', { filePath })
+}
+
 /** 单条条目变更（新增/更新共用） */
 export interface EntryChange {
   path: string

@@ -6,6 +6,7 @@ import EntryTree from './components/EntryTree.vue'
 import MonacoEditor from './components/MonacoEditor.vue'
 import EmptyState from './components/EmptyState.vue'
 import AddFileDialog from './components/AddFileDialog.vue'
+import PreviewPanel from './components/PreviewPanel.vue'
 
 const store = useWorkspaceStore()
 
@@ -258,6 +259,24 @@ onBeforeUnmount(() => {
           </svg>
           Restore
         </button>
+        <button
+          class="btn"
+          :class="{ active: store.previewOpen }"
+          title="Toggle the live preview panel"
+          :disabled="!store.previewReady"
+          @click="store.togglePreview()"
+        >
+          <svg viewBox="0 0 16 16" width="13" height="13">
+            <path
+              d="M2 8s2.5-4.5 6-4.5S14 8 14 8s-2.5 4.5-6 4.5S2 8 2 8z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.3"
+            />
+            <circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.3" />
+          </svg>
+          Preview
+        </button>
       </div>
 
       <span class="toolbar-sep"></span>
@@ -355,29 +374,62 @@ onBeforeUnmount(() => {
       <section class="content">
         <EmptyState v-if="!store.file" :dragging="dragging" @open="onPick" />
 
-        <template v-else-if="store.current">
-          <div class="editor-wrap">
-            <MonacoEditor
-              v-if="store.current.kind !== 'image'"
-              ref="editorRef"
-              :entry-path="store.current.entry.path"
-              :content="store.current.content"
-              :language="language"
-              :read-only="!store.currentEditable"
-              :word-wrap="wordWrap"
-              @update:content="store.updateContent"
-              @cursor="onCursor"
-              @undo-state="onUndoState"
-              @word-wrap-change="(v) => (wordWrap = v)"
-            />
-            <div v-else class="image-preview">
-              <img :src="store.current.content" alt="Preview" draggable="false" />
+        <template v-else-if="store.file">
+          <div class="content-split">
+            <template v-if="store.current">
+              <div class="editor-wrap">
+                <MonacoEditor
+                  v-if="store.current.kind !== 'image'"
+                  ref="editorRef"
+                  :entry-path="store.current.entry.path"
+                  :content="store.current.content"
+                  :language="language"
+                  :read-only="!store.currentEditable"
+                  :word-wrap="wordWrap"
+                  @update:content="store.updateContent"
+                  @cursor="onCursor"
+                  @undo-state="onUndoState"
+                  @word-wrap-change="(v) => (wordWrap = v)"
+                />
+                <div v-else class="image-preview">
+                  <img :src="store.current.content" alt="Preview" draggable="false" />
+                </div>
+                <div v-if="store.current.kind === 'binary'" class="entry-banner">
+                  Binary file · only the first 2 KB shown as hex, read-only
+                </div>
+              </div>
+            </template>
+            <div v-else class="content-placeholder">
+              {{ store.loading ? 'Loading…' : 'Select a file from the left panel' }}
             </div>
-            <div v-if="store.current.kind === 'binary'" class="entry-banner">
-              Binary file · only the first 2 KB shown as hex, read-only
+
+            <div
+              v-if="store.previewOpen && store.previewReady"
+              class="preview-column"
+            >
+              <div class="preview-header">
+                <span class="preview-title">Preview</span>
+                <button
+                  class="preview-collapse"
+                  title="Collapse preview"
+                  @click="store.togglePreview()"
+                >
+                  <svg viewBox="0 0 16 16" width="12" height="12">
+                    <path
+                      d="M10 3l-4 5 4 5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <PreviewPanel :kind="store.file.kind" :base64="store.previewB64" />
             </div>
           </div>
-          <footer class="statusbar">
+          <footer v-if="store.current" class="statusbar">
             <span class="sb-path" :title="store.current.entry.path">
               {{ store.current.entry.path }}
             </span>
@@ -398,10 +450,6 @@ onBeforeUnmount(() => {
             <span v-if="store.dirty" class="sb-item dirty-text">● Unsaved</span>
           </footer>
         </template>
-
-        <div v-else class="content-placeholder">
-          {{ store.loading ? 'Loading…' : 'Select a file from the left panel' }}
-        </div>
       </section>
     </main>
 
@@ -546,6 +594,63 @@ onBeforeUnmount(() => {
   flex-direction: column;
   background: var(--editor-bg);
   min-height: 0;
+}
+
+/* 编辑器 + 右侧预览 水平分栏 */
+.content-split {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.preview-column {
+  flex: none;
+  width: 46%;
+  min-width: 280px;
+  max-width: 60%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid var(--border);
+  background: var(--panel-bg);
+}
+
+.preview-header {
+  flex: none;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 0 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--fg-dim);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.preview-title {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.preview-collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fg-dim);
+  cursor: pointer;
+}
+
+.preview-collapse:hover {
+  background: var(--hover);
+  color: var(--accent);
 }
 
 .editor-wrap {

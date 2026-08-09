@@ -14,10 +14,15 @@ A desktop app built with **Tauri 2 + Vue 3 + TypeScript + Monaco Editor** for in
   - Before save: soft delete (shown with strikethrough), undoable from the row button or context menu
   - After save: the original file is backed up automatically, and the "Restore" toolbar button reverts to the last saved version
 - **Undoable adds**: files can be un-added both before and after saving
+- **Live preview**: a collapsible right-side panel renders the whole document — `docx` via [docx-preview](https://github.com/VolodymyrBaydalka/docxjs), `xlsx` via [SheetJS](https://sheetjs.com/), `pptx` via [pptx-preview](https://github.com/beaudar/pptx-preview)
 - **Image preview**: `png` / `jpg` / `gif` / `webp` and other image entries render inline
 - **Binary preview**: binary entries are shown as a read-only hex dump
 - **Reveal in folder**: locate the current OOXML file in the system file manager
 - **Export**: extract a specific entry to a local directory (with path-traversal protection)
+
+## Screenshots
+
+![OOXML Viewer](screenshots/1.png)
 
 ## Tech Stack
 

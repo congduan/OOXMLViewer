@@ -5,6 +5,7 @@ import {
   readEntry,
   readImage,
   imageDataUrl,
+  readWholeFile,
   saveChanges,
   listBackups,
   restoreBackup,
@@ -56,6 +57,10 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   // 该文件保存时自动生成的备份（保存后可回退删除/修改）
   const backups = ref<BackupInfo[]>([])
 
+  // 整文件预览：右侧面板开关 + 当前文件字节（base64）
+  const previewOpen = ref(true)
+  const previewB64 = ref('')
+
   let toastTimer: ReturnType<typeof setTimeout> | null = null
 
   // 磁盘上的原始条目索引（不含待新增/待删除）
@@ -86,6 +91,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   const currentEditable = computed(() => !!current.value && current.value.kind === 'text')
   const totalEntries = computed(() => effectiveEntries.value.length)
   const hasBackup = computed(() => backups.value.length > 0)
+  const previewReady = computed(() => !!file.value && previewB64.value !== '')
 
   function showToast(msg: string) {
     toast.value = msg
@@ -110,6 +116,23 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     }
   }
 
+  /** 读取整文件字节供预览面板渲染（失败时静默清空） */
+  async function loadPreviewBytes() {
+    if (!file.value) {
+      previewB64.value = ''
+      return
+    }
+    try {
+      previewB64.value = await readWholeFile(file.value.file_path)
+    } catch {
+      previewB64.value = ''
+    }
+  }
+
+  function togglePreview() {
+    previewOpen.value = !previewOpen.value
+  }
+
   async function openFile(path: string) {
     if (dirty.value) {
       const ok = window.confirm('You have unsaved changes. Opening a new file will discard them. Continue?')
@@ -128,6 +151,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
       current.value = null
       selectedPath.value = ''
       await refreshBackups()
+      await loadPreviewBytes()
       showToast(`Opened ${result.file_name}`)
     } catch (e) {
       setError(String(e))
@@ -264,6 +288,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
         current.value = null
         selectedPath.value = ''
       }
+      await loadPreviewBytes()
     } catch (e) {
       setError(String(e))
     }
@@ -382,6 +407,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     lastSavedAdds.value = []
     diskEntryMap.clear()
     backups.value = []
+    previewB64.value = ''
     error.value = ''
   }
 
@@ -401,6 +427,10 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     hasBackup,
     pendingAdds,
     lastSavedAdds,
+    previewOpen,
+    previewB64,
+    previewReady,
+    togglePreview,
     openFile,
     selectEntry,
     updateContent,
