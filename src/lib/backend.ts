@@ -109,7 +109,7 @@ export async function onFileDrop(handlers: {
 /** 判定 zip 条目是否属于可编辑的文本文件（与 Rust 端规则保持一致） */
 const TEXTUAL_EXTS = [
   '.xml', '.rels', '.json', '.txt', '.csv', '.tsv', '.js', '.css', '.html', '.htm',
-  '.svg', '.md', '.properties', '.dtd', '.xsd', '.xsl', '.yml', '.yaml', '.rng',
+  '.md', '.properties', '.dtd', '.xsd', '.xsl', '.yml', '.yaml', '.rng',
 ]
 
 export function isTextualPath(path: string): boolean {
@@ -118,8 +118,8 @@ export function isTextualPath(path: string): boolean {
   return TEXTUAL_EXTS.some((ext) => lower.endsWith(ext))
 }
 
-/** 判定 zip 条目是否为可预览的图片文件（svg 保留为文本编辑，与 Rust 端规则一致） */
-const IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.ico', '.tif', '.tiff']
+/** 判定 zip 条目是否为可预览的图片文件（svg 按图片渲染，与 Rust 端规则一致） */
+const IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.ico', '.tif', '.tiff', '.svg']
 
 export function isImagePath(path: string): boolean {
   const lower = path.toLowerCase()
@@ -137,6 +137,7 @@ const IMAGE_MIME: Record<string, string> = {
   '.ico': 'image/x-icon',
   '.tif': 'image/tiff',
   '.tiff': 'image/tiff',
+  '.svg': 'image/svg+xml',
 }
 
 /** 由条目路径生成图片 data URL（如 data:image/png;base64,...） */

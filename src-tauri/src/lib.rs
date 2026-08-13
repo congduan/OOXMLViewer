@@ -88,7 +88,6 @@ fn is_textual_entry(path: &str) -> bool {
         ".css",
         ".html",
         ".htm",
-        ".svg",
         ".md",
         ".properties",
         ".dtd",
@@ -102,11 +101,11 @@ fn is_textual_entry(path: &str) -> bool {
     .any(|ext| lower.ends_with(ext))
 }
 
-/// 判定 zip 内条目是否属于可预览的图片文件（svg 保留为文本编辑）
+/// 判定 zip 内条目是否属于可预览的图片文件（svg 按 XML 图片渲染）
 fn is_image_path(path: &str) -> bool {
     let lower = path.to_lowercase();
     [
-        ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".ico", ".tif", ".tiff",
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".ico", ".tif", ".tiff", ".svg",
     ]
     .iter()
     .any(|ext| lower.ends_with(ext))
@@ -427,7 +426,7 @@ fn list_backups_impl(file_path: &str) -> Result<Vec<BackupInfo>, String> {
             modified_ms,
         });
     }
-    out.sort_by(|a, b| b.modified_ms.cmp(&a.modified_ms));
+    out.sort_by_key(|b| std::cmp::Reverse(b.modified_ms));
     Ok(out)
 }
 
