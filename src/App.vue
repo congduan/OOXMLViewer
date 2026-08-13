@@ -394,6 +394,7 @@ onBeforeUnmount(() => {
     <main class="body">
       <aside v-if="store.file" class="sidebar">
         <EntryTree
+          :key="store.file.file_path"
           @add-file="onAddFile"
           @delete-file="onDeleteFile"
           @restore-file="store.restoreEntry"

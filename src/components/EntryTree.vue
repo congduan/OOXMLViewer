@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, provide, reactive, ref, watch } from 'vue'
+import { computed, nextTick, provide, reactive, ref, watch } from 'vue'
 import { useWorkspaceStore } from '../stores/workspace'
 import EntryTreeNode from './EntryTreeNode.vue'
 import ContextMenu from './ContextMenu.vue'
@@ -22,12 +22,19 @@ const visibleTree = computed(() => filterTree(store.tree, query.value))
 
 const menuState = ref<{ x: number; y: number; node: TreeNode } | null>(null)
 
-// 打开文件后默认展开第一层目录（word/ppt/xl/docProps 等）
-onMounted(() => {
-  for (const node of store.tree) {
-    if (node.type === 'dir') expanded.add(node.path)
-  }
-})
+// 打开/切换文件时重置展开状态：默认展开第一层目录（word/ppt/xl/docProps 等）。
+// 之前只在 onMounted 展开一次，切换文件后旧的展开状态残留，
+// 新文件目录默认折叠，顶层文件又与原文件同名，看起来像"列表没刷新"。
+watch(
+  () => store.file,
+  () => {
+    expanded.clear()
+    for (const node of store.tree) {
+      if (node.type === 'dir') expanded.add(node.path)
+    }
+  },
+  { immediate: true },
+)
 
 // 选中条目变化时，自动展开其所有祖先目录并滚动到可见位置。
 // 修复：新增文件位于未展开（或不存在的）父目录下时列表看不到
