@@ -200,12 +200,12 @@ function onContextMenu(e: MouseEvent) {
 
 /* 待保存新增态 */
 .tree-row.added .label {
-  color: #8fd18f;
+  color: var(--status-ok-fg);
 }
 
 .added-badge {
-  color: #8fd18f;
-  border-color: rgba(143, 209, 143, 0.45);
+  color: var(--status-ok-fg);
+  border-color: color-mix(in srgb, var(--status-ok-fg) 45%, transparent);
 }
 
 .restore-btn {
@@ -274,7 +274,7 @@ function onContextMenu(e: MouseEvent) {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #e5c07b;
+  background: var(--warn);
   flex: none;
 }
 

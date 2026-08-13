@@ -3,13 +3,18 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as monaco from 'monaco-editor'
 import { formatXml } from '../lib/xml'
 
-const props = defineProps<{
-  entryPath: string
-  content: string
-  language: string
-  readOnly: boolean
-  wordWrap: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    entryPath: string
+    content: string
+    language: string
+    readOnly: boolean
+    wordWrap: boolean
+    /** Monaco 主题：'vs-dark' | 'vs'（跟随应用日夜间模式） */
+    theme?: string
+  }>(),
+  { theme: 'vs-dark' },
+)
 
 const emit = defineEmits<{
   (e: 'update:content', value: string): void
@@ -62,7 +67,7 @@ function formatDocument() {
 onMounted(() => {
   if (!container.value) return
   editor = monaco.editor.create(container.value, {
-    theme: 'vs-dark',
+    theme: props.theme,
     fontSize: 13,
     fontFamily: "'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace",
     minimap: { enabled: true, scale: 1 },
@@ -124,6 +129,11 @@ watch(
 watch(
   () => props.wordWrap,
   (v) => editor?.updateOptions({ wordWrap: v ? 'on' : 'off' }),
+)
+
+watch(
+  () => props.theme,
+  (t) => monaco.editor.setTheme(t ?? 'vs-dark'),
 )
 
 onBeforeUnmount(() => {

@@ -1,16 +1,82 @@
+/* 暗色（默认）主题 */
 :root {
   color-scheme: dark;
   --fg: #d4d4d4;
   --fg-dim: #8b8b8b;
   --border: #2a2a2a;
+  --border-strong: #3f3f3f;
   --panel-bg: #1e1e1e;
   --editor-bg: #1e1e1e;
   --titlebar-bg: #181818;
   --input-bg: #141414;
+  --popup-bg: #252526;
   --hover: rgba(255, 255, 255, 0.06);
   --accent: #4fa3ff;
   --accent-dim: rgba(79, 163, 255, 0.14);
+  --accent-hover: #6db1ff;
+  --on-accent: #0b0f14;
   --danger: #e06c75;
+  /* 按钮 / 标签等表面色 */
+  --surface: #2a2a2a;
+  --surface-hover: #333;
+  --surface-active: #3a3a3a;
+  /* 预览面板 */
+  --preview-bg: #1a1a1c;
+  --preview-tab-bg: #26262a;
+  --preview-tab-fg: var(--fg-dim);
+  --preview-tab-fg-hover: #e8e8e8;
+  /* 状态提示 */
+  --status-ok-bg: #1e2a1e;
+  --status-ok-fg: #8fd18f;
+  --status-ok-border: #3a6b3a;
+  --status-err-bg: #3a1e1e;
+  --status-err-fg: #f0b6b6;
+  --status-err-border: #6b3a3a;
+  --warn: #e5c07b;
+  /* 图片棋盘格 */
+  --checker-a: #1a1a1c;
+  --checker-b: #202023;
+  /* 滚动条 */
+  --scroll-thumb: #3a3a3a;
+  --scroll-thumb-hover: #4a4a4a;
+}
+
+/* 亮色主题 */
+[data-theme='light'] {
+  color-scheme: light;
+  --fg: #1f1f23;
+  --fg-dim: #6b6b72;
+  --border: #d5d5da;
+  --border-strong: #c2c2ca;
+  --panel-bg: #ffffff;
+  --editor-bg: #f5f5f7;
+  --titlebar-bg: #ececf0;
+  --input-bg: #ffffff;
+  --popup-bg: #ffffff;
+  --hover: rgba(0, 0, 0, 0.05);
+  --accent: #0a7de0;
+  --accent-dim: rgba(10, 125, 224, 0.12);
+  --accent-hover: #1a8ae8;
+  --on-accent: #ffffff;
+  --danger: #d32f2f;
+  --surface: #e9e9ed;
+  --surface-hover: #dddde2;
+  --surface-active: #d2d2d8;
+  --preview-bg: #f2f2f4;
+  --preview-tab-bg: #e4e4e8;
+  --preview-tab-fg: var(--fg-dim);
+  --preview-tab-fg-hover: #33333a;
+  --status-ok-bg: #e6f2e6;
+  --status-ok-fg: #2e7d32;
+  --status-ok-border: #a5d6a7;
+  --status-err-bg: #fdecec;
+  --status-err-fg: #c62828;
+  --status-err-border: #ef9a9a;
+  --warn: #9a6a00;
+  --checker-a: #f2f2f4;
+  --checker-b: #e6e6ea;
+  --scroll-thumb: #b9b9c0;
+  --scroll-thumb-hover: #9e9ea6;
 }
 
 * {
@@ -34,10 +100,13 @@ body {
   color: var(--fg);
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 ::selection {
-  background: rgba(79, 163, 255, 0.3);
+  background: var(--accent-dim);
 }
 
 /* 滚动条 */
@@ -47,13 +116,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3a3a3a;
+  background: var(--scroll-thumb);
   border-radius: 5px;
   border: 2px solid var(--editor-bg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a4a4a;
+  background: var(--scroll-thumb-hover);
 }
 
 ::-webkit-scrollbar-corner {
@@ -69,22 +138,23 @@ body {
   padding: 0 12px;
   border-radius: 6px;
   border: 1px solid var(--border);
-  background: #2a2a2a;
+  background: var(--surface);
   color: var(--fg);
   font-size: 12.5px;
   cursor: pointer;
   transition:
     background 0.12s,
-    border-color 0.12s;
+    border-color 0.12s,
+    color 0.12s;
 }
 
 .btn:hover:not(:disabled) {
-  background: #333;
-  border-color: #3f3f3f;
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
 }
 
 .btn:active:not(:disabled) {
-  background: #3a3a3a;
+  background: var(--surface-active);
 }
 
 .btn:disabled {
@@ -95,12 +165,12 @@ body {
 .btn.primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0b0f14;
+  color: var(--on-accent);
   font-weight: 600;
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: #6db1ff;
+  background: var(--accent-hover);
 }
 
 /* 切换型按钮的按下态 */

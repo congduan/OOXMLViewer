@@ -92,7 +92,7 @@ async function create() {
 .dialog {
   width: 520px;
   max-width: 90vw;
-  background: #252526;
+  background: var(--popup-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 16px;
@@ -146,7 +146,7 @@ async function create() {
 }
 
 .field-hint.warn {
-  color: #e5a83b;
+  color: var(--warn);
 }
 
 .dialog-error {

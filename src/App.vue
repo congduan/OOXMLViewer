@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useWorkspaceStore } from './stores/workspace'
+import { useThemeStore } from './stores/theme'
 import { formatSize, languageForPath, onFileDrop, pickFile, revealInFolder, extractEntry, pickDirectory } from './lib/backend'
 import EntryTree from './components/EntryTree.vue'
 import MonacoEditor from './components/MonacoEditor.vue'
@@ -9,6 +10,7 @@ import AddFileDialog from './components/AddFileDialog.vue'
 import PreviewPanel from './components/PreviewPanel.vue'
 
 const store = useWorkspaceStore()
+const themeStore = useThemeStore()
 
 const dragging = ref(false)
 const cursor = ref({ line: 0, column: 0 })
@@ -27,6 +29,8 @@ const kindLabel = computed(() => {
 const language = computed(() =>
   store.current ? languageForPath(store.current.entry.path) : 'plaintext',
 )
+
+const monacoTheme = computed(() => (themeStore.theme === 'dark' ? 'vs-dark' : 'vs'))
 
 /** 是否可编辑文本且编辑器已挂载 */
 const editorActive = computed(
@@ -355,6 +359,32 @@ onBeforeUnmount(() => {
           </svg>
           Word Wrap
         </button>
+        <span class="toolbar-sep"></span>
+        <button
+          class="btn"
+          :title="themeStore.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          @click="themeStore.toggle()"
+        >
+          <svg v-if="themeStore.theme === 'dark'" viewBox="0 0 16 16" width="13" height="13">
+            <circle cx="8" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.4" />
+            <path
+              d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
+          <svg v-else viewBox="0 0 16 16" width="13" height="13">
+            <path
+              d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linejoin="round"
+            />
+          </svg>
+          {{ themeStore.theme === 'dark' ? 'Light' : 'Dark' }}
+        </button>
       </div>
 
       <span class="toolbar-spacer"></span>
@@ -386,6 +416,7 @@ onBeforeUnmount(() => {
                   :language="language"
                   :read-only="!store.currentEditable"
                   :word-wrap="wordWrap"
+                  :theme="monacoTheme"
                   @update:content="store.updateContent"
                   @cursor="onCursor"
                   @undo-state="onUndoState"
@@ -680,10 +711,10 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background-color: #1a1a1c;
+  background-color: var(--checker-a);
   background-image:
-    linear-gradient(45deg, #202023 25%, transparent 25%, transparent 75%, #202023 75%),
-    linear-gradient(45deg, #202023 25%, transparent 25%, transparent 75%, #202023 75%);
+    linear-gradient(45deg, var(--checker-b) 25%, transparent 25%, transparent 75%, var(--checker-b) 75%),
+    linear-gradient(45deg, var(--checker-b) 25%, transparent 25%, transparent 75%, var(--checker-b) 75%);
   background-size: 22px 22px;
   background-position: 0 0, 11px 11px;
 }
@@ -732,7 +763,7 @@ onBeforeUnmount(() => {
 }
 
 .dirty-text {
-  color: #e5c07b;
+  color: var(--warn);
 }
 
 /* 提示与错误 */
@@ -744,9 +775,9 @@ onBeforeUnmount(() => {
   font-size: 12.5px;
   padding: 8px 14px;
   border-radius: 6px;
-  background: #1e2a1e;
-  color: #8fd18f;
-  border: 1px solid #3a6b3a;
+  background: var(--status-ok-bg);
+  color: var(--status-ok-fg);
+  border: 1px solid var(--status-ok-border);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
@@ -762,9 +793,9 @@ onBeforeUnmount(() => {
   gap: 10px;
   padding: 8px 16px;
   font-size: 12.5px;
-  color: #f0b6b6;
-  background: #3a1e1e;
-  border-top: 1px solid #6b3a3a;
+  color: var(--status-err-fg);
+  background: var(--status-err-bg);
+  border-top: 1px solid var(--status-err-border);
 }
 
 .error-close {

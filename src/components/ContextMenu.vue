@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
   z-index: 200;
   min-width: 170px;
   padding: 4px;
-  background: #252526;
+  background: var(--popup-bg);
   border: 1px solid var(--border);
   border-radius: 6px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
